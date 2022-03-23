@@ -6,11 +6,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @EnableBatchProcessing
-public class SpringBatchCsvToDbApplication {
+public class SpringBatchCsvToDbApp {
 
 	public static void main(String[] args)
 	{
-		SpringApplication.run(SpringBatchCsvToDbApplication.class, args);
+		SpringApplication.run(SpringBatchCsvToDbApp.class, args);
 	}
 
 
