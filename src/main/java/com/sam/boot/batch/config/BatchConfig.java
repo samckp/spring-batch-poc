@@ -1,6 +1,7 @@
 package com.sam.boot.batch.config;
 
-import com.sam.boot.batch.model.Product;
+import com.sam.boot.batch.faker.FakeDataGenerator;
+import com.sam.boot.batch.model.Employee;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -32,6 +33,9 @@ public class BatchConfig {
     @Autowired
     private StepBuilderFactory stepBuilderFactory;
 
+    @Autowired
+    FakeDataGenerator fakeDataGenerator;
+
     @Bean
     public Job job(){
         return  jbf.get("job1")
@@ -43,7 +47,7 @@ public class BatchConfig {
     @Bean
     public Step step(){
         return stepBuilderFactory.get("step1")
-                .<Product,Product>chunk(3)
+                .<Employee, Employee>chunk(100)
                 .reader(reader())
                 .processor(processor())
                 .writer(writer())
@@ -53,17 +57,20 @@ public class BatchConfig {
     }
 
     @Bean
-    public ItemReader<Product> reader(){
+    public ItemReader<Employee> reader(){
 
-        FlatFileItemReader<Product> reader = new FlatFileItemReader<>();
-        reader.setResource(new ClassPathResource("product.csv"));
+        fakeDataGenerator.generate();
+        FlatFileItemReader<Employee> reader = new FlatFileItemReader<>();
+        reader.setResource(new ClassPathResource("employee.csv"));
 
-        DefaultLineMapper<Product> mapper = new DefaultLineMapper<>();
+        reader.setLinesToSkip(1);  // skip first row
+
+        DefaultLineMapper<Employee> mapper = new DefaultLineMapper<>();
         DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
-        lineTokenizer.setNames("id","name","description","price");
+        lineTokenizer.setNames("id","firstname","lastname","company","address","salary");
 
-        BeanWrapperFieldSetMapper<Product> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
-        fieldSetMapper.setTargetType(Product.class);
+        BeanWrapperFieldSetMapper<Employee> fieldSetMapper = new BeanWrapperFieldSetMapper<>();
+        fieldSetMapper.setTargetType(Employee.class);
 
         mapper.setLineTokenizer(lineTokenizer);
         mapper.setFieldSetMapper(fieldSetMapper);
@@ -73,21 +80,21 @@ public class BatchConfig {
     }
 
     @Bean
-    public ItemProcessor<Product,Product> processor(){
+    public ItemProcessor<Employee, Employee> processor(){
         return (p)->{
-                p.setPrice(p.getPrice()-p.getPrice()*10/100);
+                p.setSalary(p.getSalary()+p.getSalary()*10/100);
                 return p;
         };
     }
 
     @Bean
-    public ItemWriter<Product> writer(){
+    public ItemWriter<Employee> writer(){
 
-        JdbcBatchItemWriter<Product> writer = new JdbcBatchItemWriter<>();
+        JdbcBatchItemWriter<Employee> writer = new JdbcBatchItemWriter<>();
 
         writer.setDataSource(dataSource());
-        writer.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<Product>());
-        writer.setSql("INSERT INTO PRODUCT (ID,NAME,DESCRIPTION,PRICE) VALUES (:id,:name,:description,:price)");
+        writer.setItemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<Employee>());
+        writer.setSql("INSERT INTO EMPLOYEE (id,firstname,lastname,company,address,salary) VALUES (:id,:firstname,:lastname,:company,:address,:salary)");
 
         return writer;
     }
