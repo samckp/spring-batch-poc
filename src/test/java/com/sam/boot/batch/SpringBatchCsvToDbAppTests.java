@@ -1,5 +1,6 @@
 package com.sam.boot.batch;
 
+import com.sam.boot.batch.config.BatchConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.batch.core.Job;
@@ -16,7 +17,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-class SpringBatchCsvToDbApplicationTests {
+class SpringBatchCsvToDbAppTests {
 
 	@Autowired
 	private JobLauncher launcher;

@@ -1,4 +1,6 @@
 # spring-batch-poc
+#--- Before running this application run H2 Database Server 
+
 
 # Used External H2 Database for testing
 # jdbc:h2:tcp://localhost/~/test
